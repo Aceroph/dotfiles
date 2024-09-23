@@ -1,0 +1,6 @@
+#!/bin/bash
+
+swww img --transition-type wipe --transition-angle 30 --transition-step 120 "$1"
+
+# Generate colorscheme
+wal -i "$1" -nq

@@ -8,25 +8,38 @@ CONTROLS = ["quit", "install", "delete"]
 BAR_SPACING = 1
 TITLE = "Dotfiles Manager"
 
+SCRIPT_PATH = Path("/usr/local/bin/")
+CONFIG_PATH = Path.home() / ".config"
+
 
 class Installer:
     def __init__(self):
         self.index = 0
 
+        self.scriptcount = 0
+        self.configcount = 0
+
         self.installed = []
         self.existing = []
 
-        self.configs = os.listdir(str(Path(__file__).parent / "configs"))
-        self.scripts = os.listdir(str(Path(__file__).parent / "scripts"))
+        self.files = {}
+        for file in os.listdir(str(Path(__file__).parent / "configs")):
+            self.files[file] = "config"
+            self.configcount += 1
+
+        for file in os.listdir(str(Path(__file__).parent / "scripts")):
+            self.files[file] = "script"
+            self.scriptcount += 1
+
         self.get_installed()
 
 
     def get_installed(self):
         self.installed.clear()
         self.existing.clear()
-        for file in self.configs:
-            config_path = Path.home() / ".config" / file
-            script_path = Path("/usr/local/bin") / file
+        for file in self.files.keys():
+            config_path = CONFIG_PATH / file
+            script_path = SCRIPT_PATH / file
 
             if config_path.exists() or script_path.exists():
                 if config_path.is_symlink() or script_path.is_symlink():
@@ -44,31 +57,22 @@ class Installer:
             stdscr.clear()
             rows, cols = stdscr.getmaxyx()
             
-            # Configs
+            # Labels
             stdscr.addstr(0, 0, "Configs", curses.color_pair(1))
-            if len(self.configs) == 0:
-                stdscr.addstr(1, 0, "No config found")
-            for i, name in enumerate(self.configs):
-                stdscr.addstr(i + 1, 0, name, curses.A_STANDOUT * (i == self.index))
+            stdscr.addstr(self.configcount + 2, 0, "Scripts", curses.color_pair(1))
+
+            # List files
+            for i, file in enumerate(self.files.items()):
+                name, kind = file
+                offset_y = 1 if kind == "config" else 3
+
+                stdscr.addstr(i + offset_y, 0, name, curses.A_STANDOUT * (i == self.index))
 
                 if name in self.installed:
-                    stdscr.addstr(i + 1, 20, "(Installed)", curses.color_pair(2))
+                    stdscr.addstr(i + offset_y, 20, "(Installed)", curses.color_pair(2))
                 elif name in self.existing:
-                    stdscr.addstr(i + 1, 20, "(Existing)", curses.color_pair(3))
+                    stdscr.addstr(i + offset_y, 20, "(Existing)", curses.color_pair(3))
             
-            # Scripts
-            scripts_offset_y = max(len(self.configs), 1) + 2
-            stdscr.addstr(scripts_offset_y, 0, "Scripts", curses.color_pair(1))
-            if len(self.scripts) == 0:
-                stdscr.addstr(scripts_offset_y + 1, 0, "No scripts found")
-            for i, name in enumerate(self.scripts):
-                stdscr.addstr(scripts_offset_y + 1, 0, name, curses.A_STANDOUT * i + len(self.configs) == self.index)
-                
-                if name in self.installed:
-                    stdscr.addstr(scripts_offset_y + 1, 20, "(Installed)", curses.color_pair(2))
-                elif name in self.existing:
-                    stdscr.addstr(scripts_offset_y + 1, 20, "(Existing)", curses.color_pair(3))
-
             # Render tool bar
             bar_offset_x = 0
             for ctrl in CONTROLS:
@@ -78,32 +82,42 @@ class Installer:
 
             stdscr.addstr(rows - 1, bar_offset_x, " ".ljust(cols - bar_offset_x - 1), curses.A_STANDOUT)
             stdscr.addstr(rows - 1, cols - len(TITLE) - 1, TITLE, curses.A_STANDOUT)
-        
-            key = stdscr.getch()
-            file = None
-            if self.index < len(self.configs) and len(self.configs) > 0:
-                file = self.configs[self.index]
-            elif self.index - len(self.configs) < len(self.scripts):
-                file = self.scripts[self.index - len(self.configs)]
-            target = Path.home() / ".config"
+            
+            # Get selected file
+            file = list(self.files.keys())[self.index]
+            kind = list(self.files.values())[self.index]
 
+            target = CONFIG_PATH if kind == "config" else SCRIPT_PATH
+
+            # Process keys
+            key = stdscr.getch()
             if key == ord('q'):
                 break
 
-            elif key == ord('i') and file:
-                source = Path(__file__).parent / "configs" / file
-                os.system(f"rm -rf {target / file}")
-                os.system(f"ln -s {source} {target}")
+            elif key == ord('i'):
+                match kind:
+                    case "script":
+                        source = Path(__file__).parent / "scripts" / file
+                        os.system(f"sudo rm -rf {target / file}")
+                        os.system(f"sudo ln -s {source} {target}")
+                    case "config":
+                        source = Path(__file__).parent / "configs" / file
+                        os.system(f"rm -rf {target / file}")
+                        os.system(f"ln -s {source} {target}")
                 self.get_installed()
 
-            elif key == ord('d') and file:
-                os.system(f"rm -rf {target / file}")
+            elif key == ord('d'):
+                match kind:
+                    case "script":
+                        os.system(f"sudo rm -rf {target / file}")
+                    case "config":
+                        os.system(f"rm -rf {target / file}")
                 self.get_installed()
             
             elif key == curses.KEY_UP and self.index > 0:
                 self.index -= 1
 
-            elif key == curses.KEY_DOWN and self.index < len(self.configs) + len(self.scripts):
+            elif key == curses.KEY_DOWN and self.index < len(self.files.keys()):
                 self.index += 1
 
             stdscr.refresh()

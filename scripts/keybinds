@@ -1,0 +1,55 @@
+#!/bin/sh
+
+regex="bind ?= ?(\S*), ?(\S*), ?(\S*), ?([^#,]*) ?# ?(.*)"
+
+find_variable() {
+	while read p; do
+		variable_regex="\\${1} ?= ?(\S*)"
+
+		if [[ $p =~ $variable_regex ]]
+		then
+			echo ${BASH_REMATCH[1]}
+		fi
+	done < ~/.config/hypr/hyprland.conf
+}
+
+
+while read p; do
+	if [[ $p =~ $regex ]]
+	then
+		mod=${BASH_REMATCH[1]}
+		keybind=${BASH_REMATCH[2]}
+		dispatcher=${BASH_REMATCH[3]}
+		cmd=${BASH_REMATCH[4]}
+		usage=${BASH_REMATCH[5]}
+		
+		if [[ ${BASH_REMATCH[1]} != "" ]]
+		then
+			# If mod is a variable, FIND IT
+			variable_regex="\$\S*"
+			if [[ ${BASH_REMATCH[1]} =~ $variable_regex ]]
+			then
+				mod=$(find_variable $mod)
+			fi
+
+			# If cmd is a variable, FIND IT
+			if [[ ${BASH_REMATCH[4]} =~ $variable_regex ]]
+			then
+				cmd=$(find_variable $cmd)
+			fi
+					
+
+			output="${mod} + ${keybind} ${usage}"
+		else
+			output="${keybind} ${usage}"
+		fi
+
+		if [[ $@ = $output ]]
+		then
+			hyprctl -q dispatch $dispatcher $cmd
+			exit 0
+		fi
+
+		echo $output
+	fi
+done < ~/.config/hypr/hyprland.conf
