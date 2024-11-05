@@ -1,0 +1,8 @@
+#!/bin/sh
+
+cpu=`top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1"%"}'`
+mem=`free -t | awk 'FNR == 2 {printf("%.2f%"), $3/$2*100}'`
+battery=`cat /sys/class/power_supply/BAT1/charge_now | awk '{printf("%.2f%"), $1/2586000*100}'`
+
+
+notify-send "  Sys info" "   CPU : $cpu\n   MEM : $mem\n   BAT : $battery"

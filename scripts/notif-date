@@ -1,0 +1,3 @@
+#!/bin/sh
+
+notify-send "`date "+%a %x - %T"`" "`cal`" -a notif-date

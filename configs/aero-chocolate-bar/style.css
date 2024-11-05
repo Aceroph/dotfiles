@@ -1,0 +1,39 @@
+@import url("/home/acero/.cache/wal/colors-waybar.css");
+
+.bar {
+  background-color: @background;
+  padding: 4px;
+}
+
+.widget {
+  background-color: @color1;
+  color: @background;
+  padding: 0 1em;
+  border-radius: 10px;
+}
+
+button {
+  background-image: none;
+  border: none;
+}
+
+calendar {
+  background-color: @background;
+  border-color: @background;
+  color: @color1;
+}
+
+calendar header button:hover {
+  background-color: @color1;
+}
+
+calendar :selected {
+  background-color: @color1;
+  border: none;
+  color: @background;
+}
+
+popover contents,
+popover arrow {
+  background-color: @background;
+}

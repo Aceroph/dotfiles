@@ -1,0 +1,36 @@
+@theme ".cache/wal/colors-rofi-dark"
+
+configuration {
+  show-icons:  true;
+}
+
+window {
+	width:			1200px;
+}
+
+textbox-prompt-colon {
+	str:			"󰸉 ";
+	text-color:		inherit;
+}
+
+entry {
+	placeholder:		"Search wallpapers";
+}
+
+listview {
+	columns:		4;
+	lines:			4;
+}
+
+element {
+  orientation: vertical;
+}
+
+element-text {
+  horizontal-align: 0.5;
+}
+
+element-icon {
+    background-color: transparent;
+    size: 128px;
+}

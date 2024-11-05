@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [[ -n $@ ]]; then
+  wallpaper ~/Pictures/Wallpapers/$@
+  exit 0
+fi
+
+ls ~/Pictures/Wallpapers/ | while read W; do
+  echo -en "$W\x00icon\x1f~/Pictures/Wallpapers/$W\n"
+done

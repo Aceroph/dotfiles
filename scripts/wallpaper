@@ -3,4 +3,8 @@
 swww img --transition-type wipe --transition-angle 30 --transition-step 120 "$1"
 
 # Generate colorscheme
-wal -i "$1" -nq
+acetone "$1"
+
+# Reload bar
+killall -9 aero-chocolate-bar
+aero-chocolate-bar &

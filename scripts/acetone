@@ -1,0 +1,24 @@
+#!/bin/python3
+
+from colorsys import rgb_to_hls
+import pywal
+import pywal.util
+import argparse
+from pathlib import Path
+
+parser = argparse.ArgumentParser()
+parser.add_argument("image", type=Path)
+arguments = parser.parse_args()
+
+colors = pywal.colors.get(str(arguments.image))
+
+# Make the colors 10-16 be hue accurate
+hues = [0, 120, 60, 240, 300, 180]
+for color, hue in zip(list(colors["colors"].items())[9:], hues):
+    hsl = rgb_to_hls(*pywal.util.hex_to_rgb(color[1]))
+    r, g, b = pywal.util.colorsys.hls_to_rgb(hue, hsl[1], hsl[2])
+    colors["colors"][color[0]] = pywal.util.rgb_to_hex((int(r), int(g), int(b)))
+
+# Generic pywal shit
+pywal.sequences.send(colors)
+pywal.export.every(colors)

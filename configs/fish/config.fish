@@ -6,3 +6,7 @@ if status is-interactive
     alias downloadmusic="cd ~/Music && spotdl --bitrate 320k --output ~/Music/ download 'https://open.spotify.com/playlist/435ceNlwyqYVT8euIU01dp?si=3a567b6c1f3242b9'"
 end
 
+
+# bun
+set --export BUN_INSTALL "$HOME/.bun"
+set --export PATH $BUN_INSTALL/bin $PATH
