@@ -1,20 +1,45 @@
 @import url("/home/acero/.cache/wal/colors-waybar.css");
 
+* {
+  font-family: "GohuFont 14 NerdFont";
+  font-size: 1em;
+}
+
+window {
+  background-color: transparent;
+}
+
 .bar {
   background-color: @background;
-  padding: 4px;
+  margin: 10px 10px 0 10px;
+  padding: 2px 8px;
 }
 
 .widget {
-  background-color: @color1;
-  color: @background;
-  padding: 0 1em;
-  border-radius: 10px;
+  min-width: 20px;
+}
+
+label {
+  color: @color2;
 }
 
 button {
   background-image: none;
   border: none;
+}
+
+/* Workspaces */
+#workspaces > * {
+  transition: background 0.2s ease-in-out;
+  padding: 2px 8px;
+}
+
+#workspaces > :not(.active) label {
+  opacity: 0.2;
+}
+
+#workspaces > :hover {
+  background: linear-gradient(to bottom, transparent 70%, @color2 100%);
 }
 
 calendar {

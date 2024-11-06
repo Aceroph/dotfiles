@@ -1,0 +1,5 @@
+{
+  "left": { "workspaces": { "format": ["I", "II", "III", "IV", "V"] } },
+  "center": { "clock": { "format": "󰃭 %b %-d   %H:%M:%S" } },
+  "right": { "battery": {} }
+}
